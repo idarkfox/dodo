@@ -4,7 +4,7 @@
  * @Author: idarkfox
  * @Date: 2022-06-18 21:32:39
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-05 00:12:26
+ * @LastEditTime: 2022-07-07 06:28:36
  */
 'use strict'
 
@@ -20,14 +20,24 @@ class TemplateKeys{
         },
         {
             "level":index++,
-            keys:['tag','cmd'],
+            keys:['tag','expr'],
             state:[]
         },
         {   
             "level":index++,
             keys:['for','in','if','elseif','case','when','else'],
             state:[]
-        }
+        },
+        {   
+            "level":index++,
+            keys:['after-fetch','after-sse','after-expr'],
+            state:[]
+        },
+        {   
+            "level":index++,
+            keys:['dstyle','dcss'],
+            state:[]
+        },
     ];
 
     static statementKeys = (()=>{
@@ -37,8 +47,8 @@ class TemplateKeys{
         });
         return keys;
     })();
+    
 
-    static properties = [];
 
     static contents = [
         {
@@ -54,6 +64,22 @@ class TemplateKeys{
         return keys;
     })();
 
+
+
+    static properties = [
+        {
+            "level":index++,
+            keys:[]
+        }
+    ];
+    static propertiesKeys =  (()=>{
+        let keys = [];
+        Array.from(TemplateKeys.properties,item=>{
+            keys = keys.concat(item.keys);
+        });
+        return keys;
+    })();
+ 
 }
 
 
@@ -77,7 +103,6 @@ TemplateKeys.contents.forEach((obj,i)=>{
         obj.state.push(++state);
     })
 })
-
 
 
 

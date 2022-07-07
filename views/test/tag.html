@@ -1,0 +1,133 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: idarkfox
+ * @Date: 2022-07-06 17:30:18
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-07-07 08:20:05
+--> <!DOCTYPE html>
+<html>
+<head>
+    
+    <script defer type="module" src="/javascripts/dodo.js"></script>
+    <script defer type="module" src="/javascripts/traditional-import.js"></script>
+    <script >
+        var dataset = {
+              'list1':[{ a: 1, b: "b1" }, { a: 2, b: "b2" }, { a: 3, b: "b3" }, { a: 4, b: "b4" }, { a: 5, b: "b5" }, { a: 6, b: "b6" }, { a: 7, b: "b7" }, { a: 8, b: "b8" }]
+            , 'list2':[{ a: 1, b: 2 }, { a: 3, b: 4 }, { a: 5, b: 6 }]
+            , 'list3':[{ a: 'color', b: 'red' }, { a: 'color', b: 'yellow' },{a:'color',b:'blue'},{a:'color',b:'green'}]
+        }
+        
+    </script>
+</head>
+<body>
+    <div style="display: flex; flex-direction: column ;width: 640px;border: 1px solid gainsboro;">
+        <dodo-tpl for="(name,idx)" data-in="Object.keys(dataset)">
+            <dodo-tpl case>
+            <dodo-tpl when="idx&1" >
+                <div style="background-color: cornsilk;" >
+                    <dodo-tpl data-text="name" ></dodo-tpl>:
+                    <dodo-tpl data-text="JSON.stringify(dataset[name])" ></dodo-tpl>
+                </div>
+            </dodo-tpl>
+            <dodo-tpl else >
+                <div style="background-color: #c7edff;">
+                    <dodo-tpl data-text="name" ></dodo-tpl>:
+                    <dodo-tpl data-text="JSON.stringify(dataset[name])" ></dodo-tpl></div>
+            </dodo-tpl>
+            </dodo-tpl>
+        </dodo-tpl>
+        
+    </div>
+
+<!--  this.options[1].selected=true; this.onchange(); -->
+    <h3>Test custom tag</h3>
+    <select is="do-ex-select" multiple size="3" style="width:202px;" for="(name,idx,dat)"  data-in="Object.keys(dataset)" do_complete="" onchange="this.nextElementSibling.dataset.in = 'dataset.'+ this.selectedOptions[0].value">
+        <option is="do-ex-option" data-text="name" do_complete="console.log(this.dataset.idx,Object.keys(dataset).length);if(this.dataset.idx==Object.keys(dataset).length-1){this.parentNode.options[1].selected=true;this.parentNode.onchange();}"></option>
+    </select>
+    <dodo-tpl for="(x,i)" data-in="">
+        <div style="display: flex;width: 200px;border: 1px solid gainsboro;">
+            <dodo-tpl case>
+                <dodo-tpl when="x.a == 'color' ">
+                    <span style="width:6.25rem;background-color: cornsilk;" ><dodo-tpl data-text="x.a" /></span>
+                    <span style="width:6.25rem;background-color: ghostwhite"><span is="do-ex-span" name="test_dstyle" data-dstyle="bg.color(x.b);txt.size('1.5rem');txt.color('gray')"><dodo-tpl data-text="x.b" ></dodo-tpl></span></span>
+                </dodo-tpl>
+                <dodo-tpl else>
+                    <span style="width:6.25rem;background-color: cornsilk;" >a:<dodo-tpl data-text="x.a" /></span>
+                    <span style="width:6.25rem;background-color: ghostwhite">b:<dodo-tpl data-text="x.b" /></span>
+                </dodo-tpl>
+            </dodo-tpl>
+            
+        </div>
+    </dodo-tpl>
+    
+
+
+    <hr/>
+    <h3>Test [is='do-ex-*'] built-in HTML tag</h3>
+    <dodo-tpl for="(x,i)" data-in="dataset.list1">
+        <div style="display: flex;width: 200px;border: 1px solid gainsboro;">
+            <span is="do-ex-span" data-text="'a:'+x.a" style="width:6.25rem;background-color: cornsilk;"></span>
+            <span is="do-ex-span" data-text="'b:'+x.b" style="width:6.25rem;background-color: ghostwhite"></span>
+        </div>
+    </dodo-tpl>
+
+    <hr/>
+
+    <h3>PC test [ul,li]</h3>
+    <ul is="do-ex-ul" for="(x,i)" data-in="dataset.list1">
+        <li is="do-ex-li" data-text="x.a" ></li>
+    </ul>
+
+    <hr/>
+    
+    <h3>iOS alternative </h3>
+    <div>'li[is]' is not supported by Safari, Safari on iOS.</div>
+    <div></div>'ul[is]' is not supported by Safari, Safari on iOS.</div>
+    <ul>
+        <dodo-tpl for="(x,i)" data-in="dataset.list1">
+            <li><dodo-tpl data-text="x.a" />|<dodo-tpl data-text="x.b" /></li>
+        </dodo-tpl>
+    </ul>
+
+
+
+</body>
+<script defer type="module">
+     import TemplateKeys from "/javascripts/template/template-keys.js"
+        import TemplateExtendsTags from "/javascripts/template/template-extends-tags.js"
+
+        TemplateExtendsTags.use({tagName:"span",htmlElementName:HTMLSpanElement});
+        TemplateExtendsTags.use({tagName:"ul",htmlElementName:HTMLUListElement});
+        TemplateExtendsTags.use({tagName:"li",htmlElementName:HTMLLIElement});
+        TemplateExtendsTags.use({tagName:"select",htmlElementName:HTMLSelectElement});
+        TemplateExtendsTags.use({tagName:"option",htmlElementName:HTMLOptionElement});
+        
+        window.addEventListener("load", function () {
+            
+            //console.log(document.querySelectorAll("*[is]") );
+
+
+            TemplateExtendsTags.init();
+        });
+        document.addEventListener('readystatechange', (event) => {
+
+            const targetNode = document.body;
+            const config = { attributes: false, childList: true, subtree: true };
+            const callback = function(mutationsList, observer) {
+                for(let mutation of mutationsList) {
+                    if (mutation.type === 'childList') {
+                        console.log('A child node has been added or removed.',mutation);
+                    }
+                }
+            };
+            const observer = new MutationObserver(callback);
+
+            // 以上述配置开始观察目标节点
+            observer.observe(targetNode, config);
+
+            observer.disconnect();
+
+        });
+</script>
+</html>

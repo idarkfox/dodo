@@ -4,7 +4,7 @@
  * @Author: idarkfox
  * @Date: 2022-07-05 00:39:05
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-06 05:47:46
+ * @LastEditTime: 2022-07-07 04:40:50
  */
 'use strict'
 
@@ -88,6 +88,9 @@ class TemplateExtendsTags{
      * @param {JSONObject} options 
      */
     static use(options){
+
+        
+
         if( TemplateExtendsTags.extendHtmlElements.get(options.tagName) == undefined ){
             let clazz = ClassBuild(options.tagName,options.htmlElementName);
             TemplateExtendsTags.extendHtmlElements.set(clazz.tagName,clazz);
@@ -113,7 +116,8 @@ class TemplateExtendsTags{
     static init(){
         TemplateExtendsTags.extendHtmlElements.forEach(clazz=>{
             clazz.init(clazz);
-        })
+        });
+        
     }
 }
 

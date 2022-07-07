@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: idarkfox
+ * @Date: 2022-06-16 19:35:42
+ * @LastEditors: 
+ * @LastEditTime: 2022-07-06 17:39:33
+ */
 const Koa = require('koa')
 const app = new Koa()
 const views = require('koa-views')
@@ -20,9 +28,15 @@ app.use(json())
 app.use(logger())
 app.use(require('koa-static')(__dirname + '/public'))
 
-app.use(views(__dirname + '/views', {
+/* app.use(views(__dirname + '/views', {
   extension: 'ejs'
-}))
+})) */
+
+app.use(views(__dirname + '/views', {
+    map: {
+      html:'ejs'
+    },
+  }))
 
 // logger
 app.use(async (ctx, next) => {

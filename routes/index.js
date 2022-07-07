@@ -4,7 +4,7 @@
  * @Author: idarkfox
  * @Date: 2022-06-16 19:35:42
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-05 16:04:20
+ * @LastEditTime: 2022-07-06 18:04:03
  */
 const router = require('koa-router')()
 
@@ -20,22 +20,8 @@ router.get('/do-ex', async (ctx, next) => {
     })
 })
 
-
-router.get('/string', async (ctx, next) => {
-    ctx.body = 'koa2 string'
-})
-
-router.get('/json', async (ctx, next) => {
-    ctx.body = [
-        {
-            a: 'koa2 json',
-            b: 'aaa'
-        },
-        {
-            a: 'koa2 json',
-            b: 'aaa'
-        }
-    ];
+router.get('/test/:page', async (ctx, next) => {
+    await ctx.render(ctx.url.slice(1), {})
 })
 
 module.exports = router

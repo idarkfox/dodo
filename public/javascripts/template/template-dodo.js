@@ -4,7 +4,7 @@
  * @Author: idarkfox
  * @Date: 2022-06-18 05:38:49
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-06 16:27:54
+ * @LastEditTime: 2022-07-07 06:14:51
  */
 'use strict'
 
@@ -15,7 +15,7 @@ import TemplateKeys from "./template-keys.js"
 import TemplateParse from "./template-parse.js";
 import TemplateContext from "./template-context.js";
 import TemplateExtendsTags from "./template-extends-tags.js";
-
+import TemplateEvents from "./template-events.js";
 
 const RootTemplate  = 0;
 const SubTemplate   = 1;
@@ -101,25 +101,23 @@ class TemplateDodo extends DodoBase{
     }
 
     connectedCallback() {
-        // console.log(this);
+       
         if(this.finishedRendering){
             return;
         }
-       /*  if( SELF.CheckTemplate(this) || SELF.CheckContentNode(this) ){
-            if(SELF.CheckTemplate(this)){
-                if( this.render == null ){
-                    this.render = new TemplateRender(this);
-                }
+
+
+        /**
+         * zh-CN:   自定义文本内容标记没有渲染器。
+         * 
+         * en:      Custom text content markup does not have a renderer.
+         */
+        if(SELF.CheckTemplate(this) || TemplateExtendsTags.checkHtmlTag(this) ){
+            if( this.render == null ){
+                this.render = new TemplateRender(this);
             }
-            TemplateParse.TraversalTemplateNode.call(this,this);
-        } */
-        
-            if(SELF.CheckTemplate(this) || TemplateExtendsTags.checkHtmlTag(this) ){
-                if( this.render == null ){
-                    this.render = new TemplateRender(this);
-                }
-            }
-            TemplateParse.TraversalTemplateNode.call(this,this);
+        }
+        TemplateParse.TraversalTemplateNode.call(this,this);
         
     }
 
@@ -135,7 +133,7 @@ class TemplateDodo extends DodoBase{
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
-
+        
         if( oldValue!=null && oldValue != newValue ){
             this.render.clearRenderNodes();
             TemplateParse.TraversalTemplateNode.call(this,this);
@@ -190,13 +188,6 @@ class TemplateDodo extends DodoBase{
         traversal(this);
         // this.finishedRendering = true;
         hiddenNode.appendChild(this);
-    }
-
-    /**
-     * observer events bind
-     */
-    static get observedAttributes() {
-        return [...TemplateKeys.statementKeys.map(el=>(SELF.INNER_PROPERTY_PREFIX + el)),...TemplateKeys.statementKeys];
     }
 
    /**
@@ -302,7 +293,7 @@ class TemplateDodo extends DodoBase{
      * 
      * @param {TemplateDodo} sourceNode 
      * @param {String} name 
-     * @returns {String}
+     * @returns {String|null}
      */
     static GetAttribute(sourceNode,name){
         return sourceNode.dataset[name]||sourceNode.getAttribute(name);
@@ -394,6 +385,14 @@ class TemplateDodo extends DodoBase{
         TemplateContext.GetContextByUUID(context_uuid).owner = rootNode;
     }
 
+    /**
+         * observer events bind
+         */
+    static get observedAttributes() {
+        return [...TemplateKeys.statementKeys.map(el=>(SELF.INNER_PROPERTY_PREFIX + el)),...TemplateKeys.statementKeys];
+    }
+
+
     static init(){
         customElements.define(SELF.tagName, TemplateDodo);
         TemplateExDodo.init();
@@ -401,8 +400,6 @@ class TemplateDodo extends DodoBase{
     }
 
 }
-
-
 
 // extends keys
 TemplateKeys.statementKeys.forEach((in_key,idx)=>{

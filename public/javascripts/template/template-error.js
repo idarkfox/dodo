@@ -4,7 +4,7 @@
  * @Author: idarkfox
  * @Date: 2022-07-04 19:10:20
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-04 20:42:32
+ * @LastEditTime: 2022-07-07 01:18:34
  */
 'use strict'
 class TemplateDodoError extends Error{
@@ -21,6 +21,7 @@ class TemplateDodoError extends Error{
     }
     show(){
         console.error(this.#__console_info);
+        this.throw();
     }
     throw(){
         throw this;

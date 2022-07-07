@@ -4,7 +4,7 @@
  * @Author: idarkfox
  * @Date: 2022-07-01 16:03:33
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-06 16:22:15
+ * @LastEditTime: 2022-07-06 18:10:33
  */
 
 'use strict'
@@ -127,7 +127,13 @@ class TemplateContext{
 
 }
 
+
+if(typeof(Dodo)== "undefined"){
+    window.Dodo = {};
+}
+
 if( typeof(Dodo[TemplateContext.DODO_TPL_CONTEXT]) == "undefined" ){
+    
     Dodo[TemplateContext.DODO_TPL_CONTEXT] = new Map();
 }
 

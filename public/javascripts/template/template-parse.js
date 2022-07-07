@@ -1,30 +1,33 @@
 /*
- * @Descripttion: 
+ * @descripttion: 
  * @version: 
  * @Author: idarkfox
  * @Date: 2022-06-23 12:20:19
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-07-06 15:58:20
+ * @LastEditTime: 2022-07-07 07:30:25
  */
 
 'use strict'
+
+import Utils from "../utils.js";
 
 import TemplateDodo from "./template-dodo.js";
 import TemplateDataPackage from "./template-data-package.js";
 import TemplateContext from "./template-context.js";
 import TemplateDodoError from "./template-error.js";
 import TemplateExtendsTags from "./template-extends-tags.js";
+import TemplateEvents from "./template-events.js";
+import DodoStyle from "./stylesheets/style.js";
 
-import Utils from "../utils.js";
 
 
 
 class TemplateParse {
 
     /**
-     * zh-CN:   解析context模板
+     * @desc [zh-CN]:   解析context模板
      * 
-     * en:      parse context template
+     * @desc [en-US]:   parse context template
      * 
      * @param {TemplateDodo} parent 
      * @returns 
@@ -47,6 +50,9 @@ class TemplateParse {
      * @returns {object}
      */
     static build_data(expr_str, node) {
+        if(expr_str==null){
+            return [];
+        }
         let context = TemplateContext.GetContextByNode(node);
         let data = {};
         let dataPackage = node.dataPackage || new TemplateDataPackage({});
@@ -77,7 +83,7 @@ class TemplateParse {
     // foreach/ for ... in
     /**
      * 
-     * @param {TemplateDodo|HTMLElement} node TemplateDodo or customized built-in element.
+     * @param {TemplateDodo|HTMLElement} node TemplateDodo or customized [see: built-in] element.
      * @returns {HTMLElement[]}
      * 
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/CustomElementRegistry/define#customized_built-in_element MDN #customized_built-in_element}
@@ -91,7 +97,10 @@ class TemplateParse {
             args.push('array');
         }
         let nodes = [];
-        data.forEach(function (dat, idx) {
+
+        // Array.from(data,
+        data.forEach(
+            function (dat, idx) {
 
             /**
              * currentValue , index , array
@@ -185,7 +194,7 @@ class TemplateParse {
     }
 
     /**
-     * zh-CN:   判断值与[when]属性是否相等
+     * @desc [zh-CN]:   判断值与[when]属性是否相等
      * 
      * 
      * 
@@ -209,7 +218,8 @@ class TemplateParse {
     }
 
     /**
-     * zh-CN:   处理表达式，需要从父节点获取绑定的数据包。
+     * @desc [zh-CN]:   处理表达式，需要从父节点获取绑定的数据包。
+     * 
      * 
      * 
      * @param {TemplateDodo} whenNode 
@@ -230,9 +240,9 @@ class TemplateParse {
 
 
     /**
-     * zh-CN:   解析Text内容
+     * @desc [zh-CN]:   解析Text内容
      * 
-     * en:      parse Text content
+     * @desc [en-US]:      parse Text content
      * 
      * @param {TemplateDodo} dodoTextNode 
      */
@@ -252,7 +262,8 @@ class TemplateParse {
         let fun = new Function(args, `return ${val}`);
         let txtnode = document.createTextNode( fun(...data.values() ) );
         if(TemplateExtendsTags.checkHtmlTag(dodoTextNode)){
-            dodoTextNode.appendChild(txtnode);
+            dodoTextNode.replaceChildren(txtnode);
+            // dodoTextNode.appendChild(txtnode);
             dodoTextNode.finishedRendering = true;
         } else {
             dodoTextNode.replaceWith(txtnode);
@@ -261,9 +272,9 @@ class TemplateParse {
     }
 
     /**
-     * zh-CN:   解析HTML内容
+     * @desc [zh-CN]:   解析HTML内容
      * 
-     * en:      parse html content
+     * @desc [en-US]:      parse html content
      * 
      * @param {TemplateDodo} dodoHtmlNode 
      */
@@ -312,9 +323,9 @@ class TemplateParse {
     }
 
     /**
-     * zh-CN: 设置为可渲染，仅处理自定义元素。
+     * @desc [zh-CN]: 设置为可渲染，仅处理自定义元素。
      * 
-     * en: Set to renderable, Handle only custom elements.
+     * @desc [en-US]: Set to renderable, Handle only custom elements.
      * 
      * @param {HTMLElement} node 
      * @param {TemplateDataPackage} dataPackage 
@@ -322,9 +333,7 @@ class TemplateParse {
      */
     static TopNodeRenderConfigure(node, dataPackage) {
 
-
-
-        if (TemplateDodo.CheckTemplate(node) || TemplateDodo.CheckContentNode(node) || TemplateExtendsTags.checkHtmlTag(node) ) {
+        if ( TemplateExtendsTags.checkHtmlTag(node) || node.tagName == TemplateDodo.tagName.toUpperCase() ){
             TemplateDodo.SetRenderNode(node);
             TemplateDodo.SetItemIndex(node, dataPackage.index);
             TemplateDodo.SetDataPackage(node, dataPackage);
@@ -332,8 +341,7 @@ class TemplateParse {
             if( typeof(node.isCustomTag)=="undefined" ){
                 node.__dataPackage = dataPackage;
             }
-
-
+            
             return;
         } 
         [...TemplateDodo.GetChildren(node)].forEach(child => {
@@ -343,96 +351,96 @@ class TemplateParse {
     }
 
     /**
-     * zh-CN: 遍历节点树。
+     * @desc [zh-CN]: 遍历节点树。
      * 
-     * en: Traversing Node Tree.
+     * @desc [en-US]: Traversing Node Tree.
      * 
-     * @param {TemplateDodo} currenNode 
+     * @param {TemplateDodo} currentNode 
      * @param {TemplateDodo} parentNode 
      * @param {String} context_uuid 
      * @returns 
      */
-    static TraversalTemplateNode(currenNode, parentNode = null, in_context_uuid = null) {
+    static TraversalTemplateNode(currentNode, parentNode = null, in_context_uuid = null) {
 
         let context_uuid = in_context_uuid;
 
         /**
-         * zh-CN:   当前节点是子模板位于另一个模板中，不可渲染，需要保持原状。
+         * @desc [zh-CN]:   当前节点是子模板位于另一个模板中，不可渲染，需要保持原状。
          *          这里需要说明一下：模板的渲染是逐级进行的，会单独复制出模板到渲染点并标记其为可渲染状态，
          *          被复制出的模板进入connect [connectedCallback()]时会再次执行此过程，由于状态被标记为可
          *          渲染["dodo-sub-tpl=2":ViewRender]，因此可以执行后续的解析和渲染过程。
          * 
-         * en:      The current node is a child template in another template and cannot be rendered. 
+         * @desc [en-US]:   The current node is a child template in another template and cannot be rendered. 
          *          It needs to be left as it is. The explanation here is that the rendering of templates is 
          *          done step by step. Templates are copied individually to the rendering point and marked 
          *          as renderable. When the copied template enters connect [connectedCallback()], this process 
          *          is executed again. Since the state is marked as renderable ["dodo-sub-tpl=2": ViewRender], 
          *          subsequent parsing and rendering processes can be performed.
          */
-        if (typeof (currenNode) == 'undefined' || TemplateDodo.CheckSubNode(currenNode)) {
+        if (typeof (currentNode) == 'undefined' || TemplateDodo.CheckSubNode(currentNode)) {
             return;
         }
 
-        let attrs = TemplateDodo.GetAttributes(currenNode);
+        let attrs = TemplateDodo.GetAttributes(currentNode);
 
         /**
-         * zh-CN:   是context模板
-         * en:      Is context template.
+         * @desc [zh-CN]:   是context模板
+         * @desc [en-US]:   Is context template.
          */
         if (attrs.includes('context')) {
 
             /**
-             * zh-CN:   第一次遍历当前节点时，“Context UUID” 属性不存在，因此将生成新的UUID。
-             * en:      The "context UUID" attribute does not exist when the current node is traversed for the first time, so a new UUID will be generated.
+             * @desc [zh-CN]:   第一次遍历当前节点时，“Context UUID” 属性不存在，因此将生成新的UUID。
+             * @desc [en-US]:      The "context UUID" attribute does not exist when the current node is traversed for the first time, so a new UUID will be generated.
              */
-            let uuid = TemplateDodo.GetContextUUID(currenNode);
-            let value = (new Function(`return ${TemplateDodo.GetAttribute(currenNode, 'context')}`))();
+            let uuid = TemplateDodo.GetContextUUID(currentNode);
+            let value = (new Function(`return ${TemplateDodo.GetAttribute(currentNode, 'context')}`))();
             TemplateContext.SaveContext(value,uuid);
-            TemplateContext.BindUUID(currenNode, uuid);
+            TemplateContext.BindUUID(currentNode, uuid);
             context_uuid = uuid;
 
             /**
-             * zh-CN:   该context模板不是根节点，但它有自己的UUID，该context模板将被作为根节点保存，以供它内部的模板使用。
-             * en:      The context template is not a root node, but it has its own UUID and will be saved as the root node for use by templates inside it.
+             * @desc [zh-CN]:   该context模板不是根节点，但它有自己的UUID，该context模板将被作为根节点保存，以供它内部的模板使用。
+             * @desc [en-US]:      The context template is not a root node, but it has its own UUID and will be saved as the root node for use by templates inside it.
              */
-            if (TemplateDodo.GetSubNodeAttribute(currenNode) != null) {
-                TemplateDodo.SaveTemplateRoot(context_uuid, currenNode);
+            if (TemplateDodo.GetSubNodeAttribute(currentNode) != null) {
+                TemplateDodo.SaveTemplateRoot(context_uuid, currentNode);
             }
 
         }
 
         /**
          * Is empty context.
-         * zh-CN:   根部不存在context模板，为其创建一个空context。
-         * en:      There is no context template at the root, so create an empty context for it.
+         * @desc [zh-CN]:   根部不存在context模板，为其创建一个空context。
+         * @desc [en-US]:      There is no context template at the root, so create an empty context for it.
          */
         if (context_uuid == null) {
-            context_uuid = TemplateContext.GetBindUUID(currenNode);
+            context_uuid = TemplateContext.GetBindUUID(currentNode);
 
             if (context_uuid == null) {
                 context_uuid = Utils.BuildUUID();
                 TemplateContext.SaveContext({},context_uuid);
-                TemplateContext.BindUUID(currenNode, context_uuid);
+                TemplateContext.BindUUID(currentNode, context_uuid);
             }
         }
         
         // Is subtemplate.
-        if (parentNode != null && ( TemplateExtendsTags.checkHtmlTag(currenNode) || currenNode.tagName == TemplateDodo.tagName.toUpperCase() ) ) {
+        if (parentNode != null && ( TemplateExtendsTags.checkHtmlTag(currentNode) || currentNode.tagName == TemplateDodo.tagName.toUpperCase() ) ) {
             
-            TemplateDodo.SetSubNode(currenNode);
-            TemplateContext.BindUUID(currenNode, context_uuid);
+            TemplateDodo.SetSubNode(currentNode);
+            TemplateContext.BindUUID(currentNode, context_uuid);
 
         }
 
 
         /**
-         * zh-CN:   这里，所有自定义子节点都将执行 [TemplateDodo.SetSubNode]。
-         * en:      Here, all custom child nodes will execute [TemplateDodo.SetSubNode].
+         * @desc [zh-CN]:   这里，所有自定义子节点都将执行 [TemplateDodo.SetSubNode]。
+         * @desc [en-US]:      Here, all custom child nodes will execute [TemplateDodo.SetSubNode].
          */
-        let children = TemplateDodo.GetChildren(currenNode);
+        let children = TemplateDodo.GetChildren(currentNode);
         if (children != null && children.length > 0) {
             for (let i = 0; i < children.length; i++) {
-                SELF.TraversalTemplateNode.call(this, children[i], currenNode, context_uuid);
+                SELF.TraversalTemplateNode.call(this, children[i], currentNode, context_uuid);
             }
         }
 
@@ -444,42 +452,83 @@ class TemplateParse {
 
             // It is the top node . It is set as the root node and stored in the context.
 
-            if (TemplateDodo.GetSubNodeAttribute(currenNode) == null) {
-                TemplateDodo.SetTemplateRootNode(currenNode);
-                TemplateDodo.SaveTemplateRoot(context_uuid, currenNode);
+            if (TemplateDodo.GetSubNodeAttribute(currentNode) == null) {
+                TemplateDodo.SetTemplateRootNode(currentNode);
+                TemplateDodo.SaveTemplateRoot(context_uuid, currentNode);
             }
+
+
+
 
             // Render the current node.
 
             if ( attrs.includes('context') ) {
-                currenNode.render.nodes = SELF.parse_context(currenNode);
-                currenNode.render.render();
-                currenNode.finishedRendering = true;
-            }
-            else if ( attrs.includes('for') ) {
+
+                currentNode.render.nodes = SELF.parse_context(currentNode);
+                currentNode.render.render();
+                currentNode.finishedRendering = true;
+
+            } else  if( attrs.includes('fetch') || attrs.includes('sse') ){
+                
+
+
+            } else if (attrs.includes('tag') || attrs.includes('expr')) {
+
+
+                
+            } else if ( attrs.includes('for') ) {
 
                 if (attrs.includes('in')) {
-                    currenNode.render.nodes = SELF.parse_foreach(currenNode);
-                    SELF.render(currenNode);
+                    currentNode.render.nodes = SELF.parse_foreach(currentNode);
+                    SELF.render(currentNode);
                 }
 
+            }  else if (attrs.includes('case')) {
+                
+                currentNode.render.nodes = SELF.parse_case(this);
+                SELF.render(currentNode);
+                
             } else if (attrs.includes('text')) {
 
                 // Text template is without renderer.
-                SELF.parse_text(this);
+
+                try{
+                    SELF.parse_text(this);
+                } catch(e){
+                    debugger;
+                }
+                
+
+
             } else if (attrs.includes('html')) {
 
                 // HTML template is without renderer.
 
                 SELF.parse_html(this);
-            } else if (attrs.includes('case')) {
-                
-                currenNode.render.nodes = SELF.parse_case(this);
-                SELF.render(currenNode);
-                
-            } else if (attrs.includes('expr')) {
-                
             }
+            if ( attrs.includes('after-expr') ){
+
+            }
+            
+            if ( attrs.includes('dstyle') ){
+                DodoStyle.parse(this);
+                
+                
+            } else if ( attrs.includes('dcss') ){
+                // DodoStyle.parse(this);
+            }
+
+
+            if( TemplateExtendsTags.checkHtmlTag(this) && this.finishedRendering != true ){
+
+                let childNodes = TemplateDodo.GetChildren(this);
+                [...childNodes].forEach(child => {
+                    SELF.TopNodeRenderConfigure(child, this.dataPackage);
+                });
+            }
+
+            TemplateEvents.on_complete.call(this);
+            
 
         }
 
